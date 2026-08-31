@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+.env.local
+server/wallet-data/
+server/node_modules/
+*.log
+
+# Claude Code tool config
+.claude/

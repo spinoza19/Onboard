@@ -1,0 +1,1074 @@
+/* =============================================================================
+   ONBOARD — design system
+   Unicity brand (#FF6F00 / #060606 / Anton + Geist Mono) crossed with:
+   - Maxima     -> pill geometry, cream canvas, generous air, soft blobs
+   - CRAV       -> oversized display type, marquee tickers, flood colour
+   - Wero       -> gradient mesh, sparkle marks, flat vector illustration
+   ============================================================================= */
+
+/* ---------- 1. TOKENS ------------------------------------------------------ */
+
+:root {
+  /* brand — identical in both themes */
+  --brand: #ff6f00;
+  --brand-hot: #ff2d6f;
+  --brand-warm: #ffa800;
+  --brand-cool: #8b5cf6;
+  --ok: #00b578;
+  --warn: #e0a800;
+  --bad: #e5352b;
+
+  /* light theme (default) */
+  --bg: #f4eee2;
+  --bg-deep: #eae2d2;
+  --surface: #fffdf8;
+  --surface-2: #f9f3e8;
+  --ink: #0b0b0b;
+  --ink-2: #4a463e;
+  --ink-3: #8a8378;
+  --line: #0b0b0b1a;
+  --line-strong: #0b0b0b;
+  --shadow: #0b0b0b;
+  --on-brand: #0b0b0b;
+  --grid: #0b0b0b0a;
+  --glow: #ff6f0026;
+  --scrim: #f4eee2e6;
+
+  /* geometry & motion */
+  --r-pill: 999px;
+  --r-lg: 28px;
+  --r-md: 18px;
+  --r-sm: 10px;
+  --pop: 0 4px 0 var(--shadow);
+  --pop-lg: 0 7px 0 var(--shadow);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --bg: #060606;
+  --bg-deep: #000000;
+  --surface: #101010;
+  --surface-2: #171717;
+  --ink: #fefefe;
+  --ink-2: #b4b0a8;
+  --ink-3: #6f6b64;
+  --line: #fefefe1f;
+  --line-strong: #fefefe;
+  --shadow: #ff6f00;
+  --on-brand: #060606;
+  --grid: #fefefe0d;
+  --glow: #ff6f0033;
+  --scrim: #060606e6;
+
+  color-scheme: dark;
+}
+
+/* ---------- 2. RESET & BASE ------------------------------------------------ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  transition: background 0.45s var(--ease), color 0.45s var(--ease);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-family: 'Anton', 'Geist Mono', sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+  line-height: 0.86;
+  letter-spacing: -0.015em;
+}
+
+p {
+  margin: 0;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+input {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--brand);
+  text-underline-offset: 3px;
+}
+
+::selection {
+  background: var(--brand);
+  color: var(--on-brand);
+}
+
+:focus-visible {
+  outline: 3px solid var(--brand);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ---------- 3. PAGE CHROME ------------------------------------------------- */
+
+/* Unicity grid + a warm radial glow, painted behind everything. */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(120% 90% at 50% 0%, #000 40%, transparent 100%);
+  -webkit-mask-image: radial-gradient(120% 90% at 50% 0%, #000 40%, transparent 100%);
+}
+
+.backdrop::after {
+  content: '';
+  position: absolute;
+  inset: -20% -10% auto -10%;
+  height: 70vh;
+  background: radial-gradient(60% 60% at 50% 25%, var(--glow), transparent 70%);
+  filter: blur(20px);
+}
+
+.shell {
+  position: relative;
+  z-index: 1;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- 4. HEADER ------------------------------------------------------ */
+
+.hdr {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px clamp(16px, 4vw, 40px);
+  backdrop-filter: blur(14px);
+  background: var(--scrim);
+  border-bottom: 1px solid var(--line);
+}
+
+.hdr__mark {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: auto;
+  text-decoration: none;
+  color: inherit;
+}
+
+.hdr__glyph {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--brand);
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+
+.hdr__word {
+  font-family: 'Anton', sans-serif;
+  font-size: 21px;
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+
+.hdr__word span {
+  color: var(--brand);
+}
+
+.hdr__net {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+
+.hdr__net b {
+  color: var(--ok);
+  font-weight: 500;
+}
+
+@media (max-width: 620px) {
+  .hdr__net {
+    display: none;
+  }
+}
+
+/* ---------- 5. BUTTONS ----------------------------------------------------- */
+
+.btn {
+  --btn-bg: var(--brand);
+  --btn-fg: var(--on-brand);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 13px 26px;
+  border-radius: var(--r-pill);
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: var(--pop);
+  transition: transform 0.16s var(--ease), box-shadow 0.16s var(--ease),
+    background 0.2s var(--ease), opacity 0.2s var(--ease);
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: var(--pop-lg);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--shadow);
+}
+
+.btn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.btn--ghost {
+  --btn-bg: transparent;
+  --btn-fg: var(--ink);
+  box-shadow: none;
+  border: 1.5px solid var(--line-strong);
+}
+
+.btn--ghost:hover:not(:disabled) {
+  box-shadow: var(--pop);
+  background: var(--surface);
+}
+
+.btn--solid {
+  --btn-bg: var(--ink);
+  --btn-fg: var(--bg);
+}
+
+.btn--sm {
+  padding: 9px 16px;
+  font-size: 11px;
+}
+
+.btn--block {
+  width: 100%;
+}
+
+.icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--r-pill);
+  border: 1.5px solid var(--line);
+  display: grid;
+  place-items: center;
+  flex: none;
+  transition: background 0.2s var(--ease), transform 0.2s var(--ease),
+    border-color 0.2s var(--ease);
+}
+
+.icon-btn:hover {
+  background: var(--surface);
+  border-color: var(--line-strong);
+  transform: rotate(-12deg);
+}
+
+/* ---------- 6. WALLET CHIP ------------------------------------------------- */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 14px 7px 8px;
+  border-radius: var(--r-pill);
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  font-size: 12px;
+  max-width: 260px;
+}
+
+.chip__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--ok);
+  flex: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 22%, transparent);
+}
+
+.chip__dot--locked {
+  background: var(--warn);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--warn) 22%, transparent);
+  animation: pulse 1.4s var(--ease-in-out) infinite;
+}
+
+.chip__name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* ---------- 7. HERO -------------------------------------------------------- */
+
+.hero {
+  padding: clamp(40px, 9vh, 96px) clamp(16px, 4vw, 40px) 8px;
+  text-align: center;
+  position: relative;
+}
+
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 22px;
+}
+
+.kicker::before,
+.kicker::after {
+  content: '';
+  width: 26px;
+  height: 1.5px;
+  background: currentColor;
+}
+
+/* CRAV-scale display type: fills the viewport, clamps down cleanly. */
+.hero__title {
+  font-size: clamp(56px, 15.5vw, 230px);
+  letter-spacing: -0.03em;
+}
+
+.hero__title .em {
+  color: var(--brand);
+  display: inline-block;
+}
+
+/* Wero-style gradient fill on the second line */
+.hero__title .grad {
+  background: linear-gradient(100deg, var(--brand-hot), var(--brand) 45%, var(--brand-warm));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+}
+
+.hero__sub {
+  max-width: 58ch;
+  margin: 26px auto 0;
+  color: var(--ink-2);
+  font-size: clamp(13px, 1.5vw, 16px);
+  line-height: 1.7;
+}
+
+.hero__cta {
+  margin-top: 34px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.hero__note {
+  margin-top: 18px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* ---------- 8. MARQUEE (CRAV) ---------------------------------------------- */
+
+.marquee {
+  overflow: hidden;
+  border-block: 1.5px solid var(--line-strong);
+  background: var(--brand);
+  color: var(--on-brand);
+  padding: 11px 0;
+  margin: clamp(28px, 6vh, 64px) 0 0;
+  user-select: none;
+}
+
+.marquee--quiet {
+  background: transparent;
+  color: var(--ink-3);
+  border-block-color: var(--line);
+}
+
+.marquee__track {
+  display: flex;
+  width: max-content;
+  animation: slide 34s linear infinite;
+}
+
+.marquee:hover .marquee__track {
+  animation-play-state: paused;
+}
+
+.marquee__group {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  padding-right: 30px;
+  font-family: 'Anton', sans-serif;
+  font-size: 15px;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+
+.marquee__group i {
+  font-style: normal;
+  opacity: 0.55;
+}
+
+@keyframes slide {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ---------- 9. WIZARD LAYOUT ----------------------------------------------- */
+
+.wiz {
+  flex: 1;
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: clamp(30px, 7vh, 76px) clamp(16px, 4vw, 40px) 90px;
+  display: grid;
+  grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 56px);
+  align-items: start;
+}
+
+@media (max-width: 940px) {
+  .wiz {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- 10. STEP RAIL -------------------------------------------------- */
+
+.rail {
+  position: sticky;
+  top: 92px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+@media (max-width: 940px) {
+  .rail {
+    position: static;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 8px;
+    padding-bottom: 8px;
+    scrollbar-width: none;
+  }
+
+  .rail::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.rail__head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.rail__pct {
+  font-family: 'Anton', sans-serif;
+  font-size: 62px;
+  line-height: 0.8;
+  color: var(--brand);
+}
+
+.rail__label {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.rail__bar {
+  height: 6px;
+  border-radius: var(--r-pill);
+  background: var(--line);
+  overflow: hidden;
+  margin-bottom: 22px;
+}
+
+@media (max-width: 940px) {
+  .rail__head,
+  .rail__bar {
+    display: none;
+  }
+}
+
+.rail__fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--brand-hot), var(--brand), var(--brand-warm));
+  transition: width 0.7s var(--ease);
+}
+
+.step-btn {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 11px 14px;
+  border-radius: var(--r-md);
+  border: 1.5px solid transparent;
+  text-align: left;
+  width: 100%;
+  transition: background 0.22s var(--ease), border-color 0.22s var(--ease),
+    transform 0.22s var(--ease);
+}
+
+.step-btn__txt {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+@media (max-width: 940px) {
+  .step-btn {
+    width: auto;
+    flex: none;
+  }
+
+  .step-btn__txt {
+    display: none;
+  }
+
+  /* Must stay `flex`, not `block`: the title and hint are inline spans and would
+     otherwise run together on one line. */
+  .step-btn--active .step-btn__txt {
+    display: flex;
+  }
+}
+
+.step-btn:hover:not(:disabled) {
+  background: var(--surface);
+  transform: translateX(3px);
+}
+
+.step-btn--active {
+  background: var(--surface);
+  border-color: var(--line-strong);
+  box-shadow: var(--pop);
+}
+
+.step-btn:disabled {
+  opacity: 0.44;
+  cursor: not-allowed;
+}
+
+.step-btn__num {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  flex: none;
+  display: grid;
+  place-items: center;
+  font-family: 'Anton', sans-serif;
+  font-size: 15px;
+  border: 1.5px solid var(--line-strong);
+  background: var(--bg);
+  transition: background 0.3s var(--ease), color 0.3s var(--ease);
+}
+
+.step-btn--done .step-btn__num {
+  background: var(--ok);
+  color: #fff;
+  border-color: var(--ok);
+}
+
+.step-btn--active .step-btn__num {
+  background: var(--brand);
+  color: var(--on-brand);
+  border-color: var(--brand);
+}
+
+.step-btn__title {
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1.25;
+}
+
+.step-btn__hint {
+  font-size: 10.5px;
+  color: var(--ink-3);
+  letter-spacing: 0.04em;
+}
+
+/* ---------- 11. STEP CARD -------------------------------------------------- */
+
+.card {
+  position: relative;
+  background: var(--surface);
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--r-lg);
+  box-shadow: var(--pop-lg);
+  padding: clamp(22px, 3.4vw, 44px);
+  overflow: hidden;
+  animation: cardIn 0.5s var(--ease) both;
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+}
+
+/* Wero-ish gradient blob bleeding out of the card corner */
+.card::before {
+  content: '';
+  position: absolute;
+  top: -140px;
+  right: -110px;
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 210deg,
+    var(--brand-hot),
+    var(--brand),
+    var(--brand-warm),
+    var(--brand-cool),
+    var(--brand-hot)
+  );
+  filter: blur(64px);
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.card__idx {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(64px, 11vw, 132px);
+  line-height: 0.74;
+  color: transparent;
+  -webkit-text-stroke: 2px var(--line-strong);
+  opacity: 0.16;
+  position: absolute;
+  top: 14px;
+  right: 22px;
+  pointer-events: none;
+}
+
+.card__eyebrow {
+  font-size: 10.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--brand);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.card__title {
+  font-size: clamp(32px, 5.2vw, 60px);
+  max-width: 15ch;
+  margin-bottom: 16px;
+}
+
+.card__body {
+  color: var(--ink-2);
+  max-width: 62ch;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.card__body + .card__body {
+  margin-top: 12px;
+}
+
+.card__actions {
+  margin-top: 30px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.card--done {
+  border-color: var(--ok);
+}
+
+/* ---------- 12. SMALL PARTS ------------------------------------------------ */
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.stat {
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 15px 17px;
+  background: var(--surface-2);
+}
+
+.stat__k {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 7px;
+}
+
+.stat__v {
+  font-family: 'Anton', sans-serif;
+  font-size: 25px;
+  line-height: 1;
+  word-break: break-all;
+}
+
+.stat__v small {
+  font-family: 'Geist Mono', monospace;
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-left: 5px;
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--r-pill);
+  background: var(--bg);
+  padding: 5px 5px 5px 20px;
+  max-width: 460px;
+  transition: box-shadow 0.2s var(--ease);
+}
+
+.field:focus-within {
+  box-shadow: var(--pop);
+}
+
+.field__at {
+  font-family: 'Anton', sans-serif;
+  font-size: 22px;
+  color: var(--brand);
+  margin-right: 6px;
+}
+
+.field input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  outline: none;
+  padding: 11px 0;
+  font-size: 16px;
+  letter-spacing: 0.02em;
+}
+
+.field input::placeholder {
+  color: var(--ink-3);
+}
+
+.note {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+  margin-top: 20px;
+  padding: 14px 16px;
+  border-radius: var(--r-md);
+  border: 1.5px solid var(--line);
+  background: var(--surface-2);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+
+.note--warn {
+  border-color: color-mix(in srgb, var(--warn) 55%, transparent);
+  background: color-mix(in srgb, var(--warn) 9%, var(--surface));
+}
+
+.note--bad {
+  border-color: color-mix(in srgb, var(--bad) 55%, transparent);
+  background: color-mix(in srgb, var(--bad) 9%, var(--surface));
+}
+
+.note--ok {
+  border-color: color-mix(in srgb, var(--ok) 55%, transparent);
+  background: color-mix(in srgb, var(--ok) 9%, var(--surface));
+}
+
+.note__i {
+  flex: none;
+  font-family: 'Anton', sans-serif;
+  font-size: 13px;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.note--warn .note__i {
+  background: var(--warn);
+  color: #000;
+}
+
+.note--bad .note__i {
+  background: var(--bad);
+  color: #fff;
+}
+
+.note--ok .note__i {
+  background: var(--ok);
+  color: #fff;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--r-pill);
+  border: 1.5px solid var(--line);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.tag--ok {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+.mono-break {
+  font-size: 11.5px;
+  color: var(--ink-3);
+  word-break: break-all;
+  line-height: 1.5;
+}
+
+.spinner {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  animation: spin 0.7s linear infinite;
+  flex: none;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- 13. BADGE ------------------------------------------------------ */
+
+.badge-art {
+  position: relative;
+  width: 190px;
+  height: 190px;
+  margin: 8px 0 4px;
+  display: grid;
+  place-items: center;
+  animation: float 5s var(--ease-in-out) infinite;
+}
+
+@keyframes float {
+  50% {
+    transform: translateY(-11px) rotate(2.5deg);
+  }
+}
+
+.badge-art--ghost {
+  opacity: 0.3;
+  filter: grayscale(1);
+  animation: none;
+}
+
+/* ---------- 14. CONFETTI --------------------------------------------------- */
+
+.confetti {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 90;
+  overflow: hidden;
+}
+
+.confetti i {
+  position: absolute;
+  top: -12vh;
+  width: 9px;
+  height: 15px;
+  animation: fall linear forwards;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(118vh) rotate(760deg);
+    opacity: 0;
+  }
+}
+
+/* ---------- 15. FOOTER ----------------------------------------------------- */
+
+.ftr {
+  border-top: 1.5px solid var(--line);
+  padding: 26px clamp(16px, 4vw, 40px) 34px;
+  display: flex;
+  gap: 14px 26px;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 11px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.ftr__spacer {
+  margin-left: auto;
+}
+
+/* ---------- 16. TOASTS ----------------------------------------------------- */
+
+.toasts {
+  position: fixed;
+  right: clamp(12px, 3vw, 28px);
+  bottom: clamp(12px, 3vw, 28px);
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: min(370px, calc(100vw - 24px));
+}
+
+.toast {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  border-radius: var(--r-md);
+  border: 1.5px solid var(--line-strong);
+  background: var(--surface);
+  box-shadow: var(--pop);
+  animation: toastIn 0.36s var(--ease) both;
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateX(26px);
+  }
+}
+
+.toast__k {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--brand);
+  font-weight: 600;
+}
+
+.toast__t {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-2);
+  margin-top: 3px;
+}
+
+/* ---------- 17. A11Y HELPERS ----------------------------------------------- */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- 18. MOTION PREFERENCE ------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
