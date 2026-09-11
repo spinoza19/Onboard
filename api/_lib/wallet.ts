@@ -23,6 +23,14 @@
 import { mkdirSync, readFileSync, rmSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
+// Static, not dynamic. Vercel traces the dependency graph from the import
+// statements it can see: behind `await import(...)` it included sphere-dk itself
+// but none of its transitive packages, and the function died at runtime on a
+// missing @unicitylabs/state-transition-sdk.
+import { Sphere } from '@unicitylabs/sphere-sdk';
+import { createNodeProviders } from '@unicitylabs/sphere-sdk/impl/nodejs';
+import { createWalletApiProviders } from '@unicitylabs/sphere-sdk/impl/shared/wallet-api';
+
 import { BOT_NAMETAG, GATEWAY_KEY, KEY, NETWORK, WALLET_API_URL, mnemonic } from './config.js';
 import { lock, redis } from './redis.js';
 
@@ -108,17 +116,6 @@ export async function withIssuer<T>(
   let sphere: any = null;
   try {
     await hydrate();
-
-    // Imported HERE, not at module scope, for two reasons. It keeps the SDK out of
-    // the read-only paths entirely — /api/info on a warm cache never loads it — and
-    // it turns a failure to load it into a readable JSON error instead of a bare
-    // FUNCTION_INVOCATION_FAILED, which tells you nothing about what went wrong.
-    const [{ Sphere }, { createNodeProviders }, { createWalletApiProviders }] =
-      await Promise.all([
-        import('@unicitylabs/sphere-sdk'),
-        import('@unicitylabs/sphere-sdk/impl/nodejs'),
-        import('@unicitylabs/sphere-sdk/impl/shared/wallet-api'),
-      ]);
 
     const base = createNodeProviders({
       network: 'testnet',

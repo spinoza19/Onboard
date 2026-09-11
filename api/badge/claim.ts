@@ -26,7 +26,7 @@ interface BadgeRecord {
 }
 
 export default route('POST', async (req: VercelRequest, res: VercelResponse) => {
-  const claim = await verifyClaim(body(req));
+  const claim = verifyClaim(body(req));
   const ledgerKey = KEY.badge(claim.chainPubkey);
 
   // Cheap pre-check: most repeat claims never need to wake a wallet at all.

@@ -7,6 +7,8 @@
  * on our side; we only compare what came back.
  */
 
+import { verifySignedMessage } from '@unicitylabs/sphere-sdk';
+
 import { CHALLENGE_TTL_MS } from './config.js';
 import { bad } from './http.js';
 
@@ -24,18 +26,15 @@ export interface SignedClaim {
  * The freshness window matters: a signature is a bearer token for as long as we
  * accept it, so one captured from a browser history or a log must expire.
  */
-export async function verifyClaim(input: SignedClaim): Promise<{
+export function verifyClaim(input: SignedClaim): {
   chainPubkey: string;
   nametag?: string;
-}> {
+} {
   const { chainPubkey, nametag, message, signature } = input;
 
   if (!chainPubkey || !message || !signature) {
     throw bad('chainPubkey, message and signature are required');
   }
-
-  // Loaded on demand — see wallet.ts for why the SDK is never imported at module scope.
-  const { verifySignedMessage } = await import('@unicitylabs/sphere-sdk');
 
   let ok = false;
   try {
