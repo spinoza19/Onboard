@@ -35,9 +35,9 @@ preset and leave the root directory at `./`, then:
 3. **Fund the issuer wallet.** It mints and sends on every badge and every welcome reply.
 4. Redeploy.
 
-`api/README.md` has the details, including the one risk that is still open (whether
-`Sphere.init` fits inside the function timeout — the endpoints report their own timings so
-it is measured, not guessed).
+`api/README.md` has the details, including the four deployment traps this hit and the
+measured cost of booting a wallet per request: **`Sphere.init` takes ~1.8 s against a 60 s
+ceiling**, so the serverless issuer has plenty of headroom on the free tier.
 
 `server/` is the always-on alternative: the same issuer as a long-running Express process
 with a real listener, for a host that keeps a process alive. It needs no rework and is the
