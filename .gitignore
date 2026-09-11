@@ -8,3 +8,10 @@ server/node_modules/
 
 # Claude Code tool config
 .claude/
+
+# scratch bundles from local API probes
+.probe/
+.vercel/
+
+# tsc -b incremental state
+*.tsbuildinfo

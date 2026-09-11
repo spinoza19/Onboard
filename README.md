@@ -18,31 +18,41 @@ npm install && npm run dev
 ```
 
 Open <http://localhost:5174>. Steps 1–4 work immediately — they are pure wallet↔network work
-and need no backend. Step 5 needs the issuer (below), and says so plainly when it is missing.
+and need no backend. Step 5 needs the issuer.
 
 You need a [Sphere wallet](https://sphere.unicity.network) — the browser extension, or the
 hosted wallet (the app falls back to a popup automatically).
 
-### The issuer / welcome bot
+## Deploy it
 
-```bash
-cd server && cp .env.example .env && npm install && npm run dev
-```
+**Everything runs on Vercel** — the page and the issuer, one deployment, one origin, so
+there is no CORS to configure and no second host to pay for. Import the repo with the Vite
+preset and leave the root directory at `./`, then:
 
-On first boot it generates a wallet and **prints a mnemonic once**. Paste it into
-`server/.env` as `MNEMONIC=` to keep the same identity across restarts. Fund it (via the CLI
-or its own self-mint) before it can reply to transfers or issue badges.
+1. **Storage → Marketplace → Upstash Redis.** The integration injects `KV_REST_API_URL`
+   and `KV_REST_API_TOKEN` for you.
+2. Add **`MNEMONIC`** to the project environment variables — the issuer's identity.
+3. **Fund the issuer wallet.** It mints and sends on every badge and every welcome reply.
+4. Redeploy.
+
+`api/README.md` has the details, including the one risk that is still open (whether
+`Sphere.init` fits inside the function timeout — the endpoints report their own timings so
+it is measured, not guessed).
+
+`server/` is the always-on alternative: the same issuer as a long-running Express process
+with a real listener, for a host that keeps a process alive. It needs no rework and is the
+fallback if the serverless boot turns out to be too slow.
 
 ---
 
 ## Architecture
 
 ```
-Frontend (Vite + React + TS)          Sphere wallet             Issuer backend (Node)
-────────────────────────────          ─────────────             ─────────────────────
-useSphere()  ──── Connect ────────►   ConnectHost               wallet + welcome bot
-wizard state machine                  user keys never leave     mints + sends the badge
-        └──────────────── REST ──────────────────────────────►  SQLite-less JSON ledger
+Frontend (Vite + React + TS)      Sphere wallet          api/ (Vercel functions)
+────────────────────────────      ─────────────          ───────────────────────
+useSphere()  ─── Connect ─────►   ConnectHost            issuer wallet, booted per request
+wizard state machine              user keys never leave  mints + sends the badge
+        └──────────── same-origin /api ───────────────►  state in Upstash Redis, under a lock
 ```
 
 | Path | What it is |
@@ -52,7 +62,9 @@ wizard state machine                  user keys never leave     mints + sends th
 | `src/wizard/steps/*` | The five screens. |
 | `src/lib/errors.ts` | Connect error code → human copy → *is a retry safe?* |
 | `src/lib/format.ts` | Base-unit ⇄ human conversion. The only place floats are allowed near money. |
-| `server/src/index.ts` | Welcome bot + badge issuer. |
+| `api/_lib/wallet.ts` | Runs a stateful wallet inside a stateless function. |
+| `api/badge/claim.ts` | Verifies the signature, mints the badge, sends it, records it. |
+| `server/src/index.ts` | The always-on alternative: same issuer, with a real listener. |
 
 ### What the wallet adapter gets right
 

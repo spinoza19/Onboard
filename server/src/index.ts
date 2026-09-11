@@ -121,12 +121,16 @@ async function boot() {
 
 /* -------------------------------------------------------------- welcome bot -- */
 
+/** Who the listener has already answered — lets /api/welcome report the truth. */
+const welcomed = new Set<string>();
+
 function wireWelcomeBot(sphere: any): void {
   sphere.on('transfer:incoming', async (t: any) => {
     const peer: string | undefined = t?.senderNametag
       ? `@${t.senderNametag}`
       : t?.senderPubkey;
     if (!peer) return;
+    if (t?.senderPubkey) welcomed.add(t.senderPubkey);
 
     console.log(`[bot] incoming from ${peer}`);
 
@@ -177,6 +181,18 @@ async function main() {
       issuerPubkey,
       badgeCoinId: BADGE_COIN_ID,
     });
+  });
+
+  /**
+   * Wire-compatible with the serverless issuer so the frontend behaves the same
+   * against either. Here the listener does the actual replying, so this only
+   * reports whether it has already fired for that address.
+   */
+  app.post('/api/welcome', (req, res) => {
+    const pubkey = String(req.body?.chainPubkey ?? '');
+    if (!pubkey) return res.status(400).json({ error: 'chainPubkey is required' });
+    if (welcomed.has(pubkey)) return res.json({ status: 'already-welcomed' });
+    return res.status(202).json({ status: 'no-transfer-yet' });
   });
 
   app.get('/api/badge/status', (req, res) => {

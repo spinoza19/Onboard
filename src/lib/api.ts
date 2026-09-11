@@ -49,8 +49,24 @@ async function call<T>(path: string, init?: RequestInit): Promise<T> {
   return body;
 }
 
+export interface WelcomeResult {
+  status: 'replied' | 'already-welcomed' | 'no-transfer-yet';
+  dm?: boolean;
+  deliveryPending?: boolean;
+}
+
 export const issuer = {
   info: () => call<IssuerInfo>('/info'),
+
+  /**
+   * Ask the welcome bot to claim the user's transfer and reply.
+   *
+   * No signature: the issuer verifies the payment itself, which is stronger proof
+   * than a signature and saves the user a second wallet popup right behind the
+   * send confirmation.
+   */
+  welcome: (payload: { chainPubkey: string; nametag?: string }) =>
+    call<WelcomeResult>('/welcome', { method: 'POST', body: JSON.stringify(payload) }),
 
   /**
    * Ask the issuer to mint the completion badge and send it to `chainPubkey`.

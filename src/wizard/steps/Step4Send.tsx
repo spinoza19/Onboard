@@ -18,7 +18,12 @@ import { Arrow } from '@/ui/Icons';
 import { FIRST_SEND_AMOUNT, WELCOME_BOT, WIZARD_COIN } from '@/lib/config';
 import { fromBaseUnits, shortHex } from '@/lib/format';
 import { toFriendly, type FriendlyError } from '@/lib/errors';
+import { issuer, BackendOffline } from '@/lib/api';
 import type { Wizard } from '../useWizard';
+
+/** How many times to re-ask the bot while the transfer is still reaching its mailbox. */
+const WELCOME_ATTEMPTS = 4;
+const WELCOME_GAP_MS = 4000;
 
 interface SendResult {
   success?: boolean;
@@ -27,16 +32,51 @@ interface SendResult {
   deliveryPending?: boolean;
 }
 
+type BotState = 'idle' | 'asking' | 'replied' | 'silent' | 'offline';
+
 export function Step4Send({ w }: { w: Wizard }) {
   const { sphere, done, facts, info, refresh } = w;
-  const { intent, locked } = sphere;
+  const { intent, identity, locked } = sphere;
 
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<FriendlyError | null>(null);
   const [result, setResult] = useState<SendResult | null>(null);
+  const [bot, setBot] = useState<BotState>('idle');
 
   const recipient = info?.welcomeBot ?? WELCOME_BOT;
   const human = fromBaseUnits(FIRST_SEND_AMOUNT, WIZARD_COIN.decimals);
+
+  /**
+   * Poke the welcome bot. On a serverless issuer nothing is listening for the
+   * transfer, so the page is what tells it to look — and the transfer may still be
+   * reaching the bot's mailbox when we first ask, hence the retries.
+   *
+   * Never fatal: the step is already complete once the send succeeded. A silent
+   * bot costs the user a nicety, not their progress.
+   */
+  const pokeBot = useCallback(async () => {
+    if (!identity?.chainPubkey) return;
+    setBot('asking');
+
+    for (let attempt = 0; attempt < WELCOME_ATTEMPTS; attempt++) {
+      try {
+        const res = await issuer.welcome({
+          chainPubkey: identity.chainPubkey,
+          nametag: identity.nametag,
+        });
+        if (res.status !== 'no-transfer-yet') {
+          setBot('replied');
+          await refresh();
+          return;
+        }
+      } catch (e) {
+        setBot(e instanceof BackendOffline ? 'offline' : 'silent');
+        return;
+      }
+      await new Promise((r) => setTimeout(r, WELCOME_GAP_MS));
+    }
+    setBot('silent');
+  }, [identity, refresh]);
 
   const run = useCallback(async () => {
     setBusy(true);
@@ -50,12 +90,13 @@ export function Step4Send({ w }: { w: Wizard }) {
       });
       setResult(res);
       await refresh();
+      void pokeBot();
     } catch (e) {
       setErr(toFriendly(e));
     } finally {
       setBusy(false);
     }
-  }, [intent, recipient, refresh]);
+  }, [intent, recipient, refresh, pokeBot]);
 
   // The only case where re-offering the action would be dangerous.
   const retryForbidden = err ? !err.retry : false;
@@ -83,12 +124,34 @@ export function Step4Send({ w }: { w: Wizard }) {
             The spend is committed on-chain but delivery to {recipient} is still retrying in the
             background. Nothing to do — and nothing to re-send.
           </Note>
-        ) : (
-          <Note tone="ok">
-            Watch for a reply. The welcome bot answers with a DM and sends a little back, which
-            will surface as a live <code>transfer:incoming</code> event.
+        ) : null}
+
+        {bot === 'asking' ? (
+          <Note tone="info" icon="…">
+            Nudging {recipient}. It claims your transfer, then answers with a direct message and
+            sends a little back — watch for the live <code>transfer:incoming</code>.
           </Note>
-        )}
+        ) : null}
+
+        {bot === 'replied' ? (
+          <Note tone="ok">
+            {recipient} answered. Check your DMs in Sphere, and look at your balance — a little
+            came back.
+          </Note>
+        ) : null}
+
+        {bot === 'silent' || bot === 'offline' ? (
+          <Note tone="info">
+            <strong>Your transfer went through</strong> — this step is done either way. The
+            welcome bot just did not answer
+            {bot === 'offline' ? ' (the issuer is not reachable)' : ' yet'}.
+            <div style={{ marginTop: 10 }}>
+              <button className="btn btn--ghost btn--sm" onClick={() => void pokeBot()}>
+                Nudge it again
+              </button>
+            </div>
+          </Note>
+        ) : null}
       </StepShell>
     );
   }

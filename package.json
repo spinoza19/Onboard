@@ -5,19 +5,23 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && tsc -p tsconfig.api.json && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.api.json"
   },
   "dependencies": {
     "@unicitylabs/sphere-sdk": "^0.15.0",
+    "@upstash/redis": "^1.38.4",
     "buffer": "^6.0.3",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "ws": "^8.21.3"
   },
   "devDependencies": {
+    "@types/node": "^22.20.2",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
+    "@vercel/node": "^13.0.0",
     "@vitejs/plugin-react": "^4.3.4",
     "typescript": "^5.7.3",
     "vite": "^6.0.11"
