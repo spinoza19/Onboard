@@ -5,9 +5,9 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { KEY } from '../_lib/config';
-import { bad, route } from '../_lib/http';
-import { redis } from '../_lib/redis';
+import { KEY } from '../_lib/config.js';
+import { bad, route } from '../_lib/http.js';
+import { redis } from '../_lib/redis.js';
 
 export default route('GET', async (req: VercelRequest, res: VercelResponse) => {
   const pubkey = String(req.query.pubkey ?? '').trim();

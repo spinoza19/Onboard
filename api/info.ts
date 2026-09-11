@@ -7,9 +7,9 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { BADGE_COIN_ID } from './_lib/config';
-import { route } from './_lib/http';
-import { cachedIdentity, withIssuer } from './_lib/wallet';
+import { BADGE_COIN_ID } from './_lib/config.js';
+import { route } from './_lib/http.js';
+import { cachedIdentity, withIssuer } from './_lib/wallet.js';
 
 export default route('GET', async (_req: VercelRequest, res: VercelResponse) => {
   let identity = await cachedIdentity();

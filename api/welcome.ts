@@ -19,10 +19,10 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { KEY, REPLY_AMOUNT, USDU } from './_lib/config';
-import { bad, body, route } from './_lib/http';
-import { redis } from './_lib/redis';
-import { withIssuer } from './_lib/wallet';
+import { KEY, REPLY_AMOUNT, USDU } from './_lib/config.js';
+import { bad, body, route } from './_lib/http.js';
+import { redis } from './_lib/redis.js';
+import { withIssuer } from './_lib/wallet.js';
 
 interface HistoryRow {
   type?: string;

@@ -8,7 +8,7 @@
  */
 
 import { Redis } from '@upstash/redis';
-import { KEY } from './config';
+import { KEY } from './config.js';
 
 let client: Redis | null = null;
 

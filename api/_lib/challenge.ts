@@ -7,8 +7,8 @@
  * on our side; we only compare what came back.
  */
 
-import { CHALLENGE_TTL_MS } from './config';
-import { bad } from './http';
+import { CHALLENGE_TTL_MS } from './config.js';
+import { bad } from './http.js';
 
 export interface SignedClaim {
   chainPubkey?: string;

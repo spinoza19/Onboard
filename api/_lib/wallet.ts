@@ -23,8 +23,8 @@
 import { mkdirSync, readFileSync, rmSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { BOT_NAMETAG, GATEWAY_KEY, KEY, NETWORK, WALLET_API_URL, mnemonic } from './config';
-import { lock, redis } from './redis';
+import { BOT_NAMETAG, GATEWAY_KEY, KEY, NETWORK, WALLET_API_URL, mnemonic } from './config.js';
+import { lock, redis } from './redis.js';
 
 const DATA_DIR = '/tmp/onboard-issuer';
 const WALLET_FILE = join(DATA_DIR, 'wallet.json');

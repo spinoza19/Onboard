@@ -13,11 +13,11 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { BADGE_COIN_ID, KEY } from '../_lib/config';
-import { recipientOf, verifyClaim } from '../_lib/challenge';
-import { body, route } from '../_lib/http';
-import { redis } from '../_lib/redis';
-import { withIssuer } from '../_lib/wallet';
+import { BADGE_COIN_ID, KEY } from '../_lib/config.js';
+import { recipientOf, verifyClaim } from '../_lib/challenge.js';
+import { body, route } from '../_lib/http.js';
+import { redis } from '../_lib/redis.js';
+import { withIssuer } from '../_lib/wallet.js';
 
 interface BadgeRecord {
   tokenId?: string;
