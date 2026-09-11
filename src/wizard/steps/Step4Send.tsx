@@ -44,6 +44,8 @@ export function Step4Send({ w }: { w: Wizard }) {
   const [bot, setBot] = useState<BotState>('idle');
 
   const recipient = info?.welcomeBot ?? WELCOME_BOT;
+  // A pubkey is 66 characters of hex; showing it whole would swallow the sentence.
+  const shownRecipient = recipient.startsWith('@') ? recipient : shortHex(recipient, 8, 6);
   const human = fromBaseUnits(FIRST_SEND_AMOUNT, WIZARD_COIN.decimals);
 
   /**
@@ -121,22 +123,22 @@ export function Step4Send({ w }: { w: Wizard }) {
         </div>
         {result?.deliveryPending ? (
           <Note tone="warn">
-            The spend is committed on-chain but delivery to {recipient} is still retrying in the
-            background. Nothing to do — and nothing to re-send.
+            The spend is committed on-chain but delivery to {shownRecipient} is still retrying
+            in the background. Nothing to do — and nothing to re-send.
           </Note>
         ) : null}
 
         {bot === 'asking' ? (
           <Note tone="info" icon="…">
-            Nudging {recipient}. It claims your transfer, then answers with a direct message and
-            sends a little back — watch for the live <code>transfer:incoming</code>.
+            Nudging {shownRecipient}. It claims your transfer, then answers with a direct
+            message and sends a little back — watch for the live <code>transfer:incoming</code>.
           </Note>
         ) : null}
 
         {bot === 'replied' ? (
           <Note tone="ok">
-            {recipient} answered. Check your DMs in Sphere, and look at your balance — a little
-            came back.
+            {shownRecipient} answered. Check your DMs in Sphere, and look at your balance — a
+            little came back.
           </Note>
         ) : null}
 
@@ -160,7 +162,7 @@ export function Step4Send({ w }: { w: Wizard }) {
     <StepShell
       index={4}
       eyebrow="Step 04 — First transfer"
-      title={`Send ${human} to ${recipient}`}
+      title={`Send ${human} to ${shownRecipient}`}
       actions={
         <button
           className="btn"
@@ -175,12 +177,12 @@ export function Step4Send({ w }: { w: Wizard }) {
     >
       <p className="card__body">
         Time to actually use the thing. You are sending {human} {WIZARD_COIN.symbol} to{' '}
-        <strong>{recipient}</strong>, a bot that replies with a direct message and sends a little
-        back so you can watch money arrive in real time.
+        <strong>{shownRecipient}</strong>, a bot that replies with a direct message and sends a
+        little back so you can watch money arrive in real time.
       </p>
 
       <div className="stat-grid">
-        <Stat k="To" v={recipient} />
+        <Stat k="To" v={shownRecipient} />
         <Stat k="Amount" v={human} unit={WIZARD_COIN.symbol} />
         <Stat k="Base units" v={FIRST_SEND_AMOUNT} />
         <Stat
@@ -189,6 +191,14 @@ export function Step4Send({ w }: { w: Wizard }) {
           unit={WIZARD_COIN.symbol}
         />
       </div>
+
+      {info && info.hasNametag === false ? (
+        <Note tone="info">
+          The bot has no registered Unicity ID, so you are sending to its raw public key. That
+          is deliberate: nametag bindings are first-seen-wins, and addressing it by a name it
+          does not hold would send your tokens to whoever does.
+        </Note>
+      ) : null}
 
       {locked ? <Note tone="warn">Unlock Sphere to send.</Note> : null}
 

@@ -10,11 +10,17 @@
 import { API_BASE } from './config';
 
 export interface IssuerInfo {
-  /** The nametag the welcome bot answers on — step 4 sends here. */
+  /**
+   * Where step 4 sends. A `@nametag` when the issuer actually holds one, otherwise
+   * its raw chain pubkey — never a name it merely wishes it had, since bindings are
+   * first-seen-wins and sending to somebody else's name sends to somebody else.
+   */
   welcomeBot: string;
+  /** False when the issuer is being addressed by pubkey. */
+  hasNametag?: boolean;
   /** Issuer's chain pubkey, so a user can verify badge provenance. */
   issuerPubkey: string;
-  /** Non-fungible type id used for the badge. */
+  /** Coin id of the badge token, so the wizard can spot it in the wallet. */
   badgeCoinId: string;
 }
 

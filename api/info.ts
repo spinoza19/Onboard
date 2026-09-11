@@ -27,7 +27,10 @@ export default route('GET', async (_req: VercelRequest, res: VercelResponse) => 
   res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=3600');
 
   return res.status(200).json({
-    welcomeBot: `@${identity.nametag}`,
+    // The pubkey when we hold no nametag: addressing the bot by a name we do not
+    // own would send every user's first transfer to whoever does own it.
+    welcomeBot: identity.nametag ? `@${identity.nametag}` : identity.chainPubkey,
+    hasNametag: Boolean(identity.nametag),
     issuerPubkey: identity.chainPubkey,
     badgeCoinId: BADGE_COIN_ID,
   });

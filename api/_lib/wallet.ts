@@ -37,7 +37,15 @@ export interface Issuer {
   /** The live Sphere instance, already initialised. */
   sphere: any;
   chainPubkey: string;
-  nametag: string;
+  /**
+   * The nametag we ACTUALLY hold, or null.
+   *
+   * Never falls back to the configured BOT_NAMETAG. Nametag bindings are
+   * first-seen-wins on Nostr, so a registration that lost the race means the name
+   * belongs to somebody else — and publishing it as ours would route every user's
+   * first transfer to a stranger's wallet. The pubkey is always ours.
+   */
+  nametag: string | null;
 }
 
 export interface Timings {
@@ -58,12 +66,12 @@ export interface Timings {
  */
 export async function cachedIdentity(): Promise<{
   chainPubkey: string;
-  nametag: string;
+  nametag: string | null;
 } | null> {
   const raw = await redis().get<string | Record<string, string>>(KEY.identity);
   if (!raw) return null;
   const v = typeof raw === 'string' ? JSON.parse(raw) : raw;
-  return v?.chainPubkey ? (v as { chainPubkey: string; nametag: string }) : null;
+  return v?.chainPubkey ? (v as { chainPubkey: string; nametag: string | null }) : null;
 }
 
 async function hydrate(): Promise<boolean> {
@@ -133,7 +141,7 @@ export async function withIssuer<T>(
 
     const identity = {
       chainPubkey: sphere.identity?.chainPubkey ?? '',
-      nametag: sphere.identity?.nametag ?? BOT_NAMETAG,
+      nametag: (sphere.identity?.nametag as string | undefined) ?? null,
     };
     // Cache it so /api/info — hit on every page load — never boots a wallet.
     await redis().set(KEY.identity, JSON.stringify(identity));

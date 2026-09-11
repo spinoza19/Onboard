@@ -165,9 +165,19 @@ async function main() {
   const sphere = await boot();
 
   const issuerPubkey: string = sphere.identity?.chainPubkey ?? '';
-  const nametag: string = sphere.identity?.nametag ?? BOT_NAMETAG;
+  // Never fall back to the CONFIGURED name: bindings are first-seen-wins on Nostr,
+  // so a lost registration means that name is somebody else's wallet.
+  const nametag: string | null = sphere.identity?.nametag ?? null;
+  const address = nametag ? `@${nametag}` : issuerPubkey;
 
-  console.log(`[issuer] identity  @${nametag}`);
+  console.log(`[issuer] identity  ${address}`);
+  if (!nametag) {
+    console.warn(
+      `[issuer] WARNING: the nametag "${BOT_NAMETAG}" is not registered to this wallet. ` +
+        'Users will be pointed at the raw pubkey instead. Pick a free BOT_NAMETAG and ' +
+        'recreate the wallet if you want a readable name.',
+    );
+  }
   console.log(`[issuer] pubkey    ${issuerPubkey}`);
 
   wireWelcomeBot(sphere);
@@ -177,7 +187,8 @@ async function main() {
 
   app.get('/api/info', (_req, res) => {
     res.json({
-      welcomeBot: `@${nametag}`,
+      welcomeBot: address,
+      hasNametag: Boolean(nametag),
       issuerPubkey,
       badgeCoinId: BADGE_COIN_ID,
     });
