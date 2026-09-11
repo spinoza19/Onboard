@@ -7,12 +7,27 @@
 import { SPHERE_NETWORKS, PERMISSION_SCOPES } from '@unicitylabs/sphere-sdk/connect';
 import type { PermissionScope } from '@unicitylabs/sphere-sdk/connect';
 
+/**
+ * Read a build-time env var, treating blank as absent.
+ *
+ * `??` alone is not enough: a hosting dashboard that lists a detected variable
+ * and leaves its value empty injects `""`, which is not nullish — so the default
+ * is skipped and WALLET_URL silently becomes the empty string. That turns the
+ * wallet popup into a relative URL on our own origin, which fails with no error
+ * anyone can read.
+ */
+function env(value: string | undefined, fallback: string): string {
+  return value && value.trim() ? value.trim() : fallback;
+}
+
 /** The only live Unicity network today. `id: 4`. */
 export const NETWORK = SPHERE_NETWORKS.testnet2;
 
 /** Where the hosted Sphere wallet lives (popup fallback, and the nametag hand-off). */
-export const WALLET_URL =
-  import.meta.env.VITE_WALLET_URL ?? 'https://sphere.unicity.network';
+export const WALLET_URL = env(
+  import.meta.env.VITE_WALLET_URL,
+  'https://sphere.unicity.network',
+);
 
 export const DAPP = {
   name: 'ONBOARD',
@@ -67,11 +82,10 @@ export const MINT_AMOUNT = '100000000';
 export const FIRST_SEND_AMOUNT = '500000';
 
 /** Step 4 — who the first transfer goes to. Overridable so you can point at your own bot. */
-export const WELCOME_BOT =
-  import.meta.env.VITE_WELCOME_BOT ?? '@welcome';
+export const WELCOME_BOT = env(import.meta.env.VITE_WELCOME_BOT, '@welcome');
 
 /** Issuer backend base URL. Proxied through Vite in dev. */
-export const API_BASE = import.meta.env.VITE_API_BASE ?? '/api';
+export const API_BASE = env(import.meta.env.VITE_API_BASE, '/api');
 
 /** sessionStorage key for popup-mode session resume. */
 export const SESSION_KEY = 'onboard.sphere.session';
