@@ -13,6 +13,11 @@ export default function handler(_req: VercelRequest, res: VercelResponse) {
     ok: true,
     node: process.version,
     region: process.env.VERCEL_REGION ?? null,
+    // Which commit is actually serving. Without this, "the fix did not work" and
+    // "the fix is not deployed yet" look identical from the outside, and every
+    // diagnosis after that is guesswork.
+    commit: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? null,
+    deployedAt: process.env.VERCEL_DEPLOYMENT_ID ?? null,
     // Presence only — never the values.
     env: {
       MNEMONIC: Boolean(process.env.MNEMONIC),
