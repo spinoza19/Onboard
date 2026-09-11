@@ -7,6 +7,7 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { checkMnemonic } from './_lib/config.js';
 
 export default function handler(_req: VercelRequest, res: VercelResponse) {
   res.status(200).json({
@@ -18,7 +19,8 @@ export default function handler(_req: VercelRequest, res: VercelResponse) {
     // diagnosis after that is guesswork.
     commit: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? null,
     deployedAt: process.env.VERCEL_DEPLOYMENT_ID ?? null,
-    // Presence only — never the values.
+    // Counts and positions only — never a value.
+    mnemonic: checkMnemonic(),
     env: {
       MNEMONIC: Boolean(process.env.MNEMONIC),
       BOT_NAMETAG: process.env.BOT_NAMETAG ?? null,
