@@ -1,7 +1,15 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
-    "api/*.ts": { "maxDuration": 60, "memory": 1024 },
-    "api/badge/*.ts": { "maxDuration": 60, "memory": 1024 }
+    "api/*.ts": {
+      "maxDuration": 60,
+      "memory": 1024,
+      "includeFiles": "node_modules/{@noble,@scure,@unicitylabs,@upstash,base64-js,bip39,buffer,canonicalize,crypto-js,ieee754,libphonenumber-js,uncrypto,uuid,ws}/**"
+    },
+    "api/badge/*.ts": {
+      "maxDuration": 60,
+      "memory": 1024,
+      "includeFiles": "node_modules/{@noble,@scure,@unicitylabs,@upstash,base64-js,bip39,buffer,canonicalize,crypto-js,ieee754,libphonenumber-js,uncrypto,uuid,ws}/**"
+    }
   }
 }
